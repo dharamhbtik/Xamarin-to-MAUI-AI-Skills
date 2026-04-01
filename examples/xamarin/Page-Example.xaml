@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Xamarin Forms XAML Page Example
+    Reference: skills/xamarin-forms-development.md
+-->
+
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:prism="clr-namespace:Prism.Mvvm;assembly=Prism.Forms"
+             xmlns:local="clr-namespace:YourApp.Views"
+             x:Class="YourApp.Views.ItemListPage"
+             prism:ViewModelLocator.AutowireViewModel="True"
+             Title="Items">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Converters -->
+            <local:InverseBoolConverter x:Key="InverseBoolConverter" />
+
+            <!-- Data Template for List Items -->
+            <DataTemplate x:Key="ItemTemplate">
+                <ViewCell>
+                    <SwipeView>
+                        <SwipeView.RightItems>
+                            <SwipeItems Mode="Execute">
+                                <SwipeItem Text="Delete"
+                                          BackgroundColor="Red"
+                                          Command="{Binding Path=BindingContext.DeleteCommand, Source={x:Reference Name=ListPage}}"
+                                          CommandParameter="{Binding .}" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+
+                        <Grid Padding="15,10" ColumnDefinitions="*,Auto">
+                            <StackLayout Grid.Column="0">
+                                <Label Text="{Binding Name}"
+                                       FontSize="16"
+                                       FontAttributes="Bold" />
+                                <Label Text="{Binding Description}"
+                                       FontSize="13"
+                                       TextColor="Gray" />
+                            </StackLayout>
+
+                            <Label Grid.Column="1"
+                                   Text="{Binding CreatedAt, StringFormat='{0:MM/dd/yyyy}'}"
+                                   FontSize="12"
+                                   TextColor="Silver" />
+                        </Grid>
+                    </SwipeView>
+                </ViewCell>
+            </DataTemplate>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Add"
+                     Command="{Binding AddCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Search Bar -->
+        <SearchBar Grid.Row="0"
+                   Text="{Binding SearchText}"
+                   Placeholder="Search items..."
+                   SearchCommand="{Binding SearchCommand}" />
+
+        <!-- List with Pull-to-Refresh -->
+        <RefreshView Grid.Row="1"
+                     IsRefreshing="{Binding IsBusy}"
+                     Command="{Binding RefreshCommand}">
+            <CollectionView x:Name="ItemsList"
+                           ItemsSource="{Binding Items}"
+                           SelectedItem="{Binding SelectedItem}"
+                           SelectionMode="Single"
+                           ItemTemplate="{StaticResource ItemTemplate}"
+                           CachingStrategy="RecycleElement">
+            </CollectionView>
+        </RefreshView>
+
+        <!-- Empty State -->
+        <StackLayout Grid.Row="1"
+                    IsVisible="{Binding HasItems, Converter={StaticResource InverseBoolConverter}}"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center">
+            <Label Text="No items found"
+                   FontSize="18"
+                   TextColor="Gray" />
+        </StackLayout>
+    </Grid>
+
+</ContentPage>

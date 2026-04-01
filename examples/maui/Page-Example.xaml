@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    .NET MAUI XAML Page Example
+    Reference: skills/dotnet-maui-development.md
+-->
+
+<ContentPage x:Class="YourApp.Views.ItemListPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:YourApp.ViewModels"
+             xmlns:model="clr-namespace:YourApp.Models"
+             x:DataType="vm:ItemListViewModel"
+             Title="Items">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Converters -->
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+
+            <!-- Data Template with Compiled Bindings -->
+            <DataTemplate x:Key="ItemTemplate"
+                          x:DataType="model:Item">
+                <SwipeView>
+                    <SwipeView.LeftItems>
+                        <SwipeItems>
+                            <SwipeItem Text="Edit"
+                                       BackgroundColor="Blue"
+                                       Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ItemListViewModel}}, Path=NavigateToDetailCommand}"
+                                       CommandParameter="{Binding .}" />
+                        </SwipeItems>
+                    </SwipeView.LeftItems>
+
+                    <SwipeView.RightItems>
+                        <SwipeItems Mode="Execute">
+                            <SwipeItem Text="Delete"
+                                       BackgroundColor="Red"
+                                       Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ItemListViewModel}}, Path=DeleteCommand}"
+                                       CommandParameter="{Binding .}" />
+                        </SwipeItems>
+                    </SwipeView.RightItems>
+
+                    <Border Padding="15,10"
+                           BackgroundColor="White"
+                           Stroke="Gray"
+                           StrokeThickness="0.5">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Grid.Column="0"
+                                               Spacing="5">
+                                <Label Text="{Binding Name}"
+                                       FontSize="16"
+                                       FontAttributes="Bold" />
+                                <Label Text="{Binding Description}"
+                                       FontSize="13"
+                                       TextColor="Gray" />
+                            </VerticalStackLayout>
+
+                            <Label Grid.Column="1"
+                                   Text="{Binding CreatedAt, StringFormat='{0:MM/dd/yyyy}'}"
+                                   FontSize="12"
+                                   TextColor="Silver"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                </SwipeView>
+            </DataTemplate>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Add"
+                     Command="{Binding LoadItemsCommand}"
+                     Icon="{OnPlatform iOS='plus', Android='ic_add'}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,*"
+          Padding="10">
+        <!-- Search Bar -->
+        <SearchBar Grid.Row="0"
+                   Text="{Binding SearchText}"
+                   Placeholder="Search items..."
+                   SearchCommand="{Binding SearchCommand}"
+                   VerticalOptions="Start" />
+
+        <!-- CollectionView with Virtualization -->
+        <RefreshView Grid.Row="1"
+                    IsRefreshing="{Binding IsBusy}"
+                    Command="{Binding LoadItemsCommand}">
+            <CollectionView x:Name="ItemsCollection"
+                           ItemsSource="{Binding Items}"
+                           SelectedItem="{Binding SelectedItem}"
+                           SelectionMode="Single"
+                           ItemTemplate="{StaticResource ItemTemplate}"
+                           VirtualizationMode="Recycling"
+                           RemainingItemsThreshold="5"
+                           RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                <CollectionView.EmptyView>
+                    <StackLayout VerticalOptions="Center"
+                                HorizontalOptions="Center">
+                        <Label Text="No items found"
+                               FontSize="18"
+                               TextColor="Gray" />
+                        <Button Text="Refresh"
+                               Command="{Binding LoadItemsCommand}"
+                               Margin="0,20,0,0" />
+                    </StackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+
+</ContentPage>

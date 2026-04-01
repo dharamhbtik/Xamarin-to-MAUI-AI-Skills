@@ -15,8 +15,14 @@ AI-assisted development skills and guides for migrating Xamarin Forms to .NET MA
 │   ├── dotnet-maui-development.md      # .NET MAUI day-to-day development
 │   └── maui-migration-guide.md          # Complete migration guide
 ├── examples/
-│   ├── xamarin-examples.md              # Code examples
-│   └── maui-examples.md                 # Code examples
+│   ├── xamarin/
+│   │   ├── ViewModel-Example.cs         # Prism ViewModel with Rx
+│   │   ├── Renderer-Example.cs          # Android custom renderer
+│   │   └── Page-Example.xaml            # XAML page with bindings
+│   └── maui/
+│       ├── ViewModel-Example.cs         # ObservableObject with source generators
+│       ├── Handler-Example.cs           # Android custom handler
+│       └── Page-Example.xaml            # XAML page with compiled bindings
 ├── LICENSE                               # MIT License
 └── README.md                             # This file
 ```
@@ -124,7 +130,7 @@ Step-by-step migration guide with:
 
 **Prompt:**
 ```
-@workspace Create a Prism ViewModel for a task list with:
+@workspace Create a Prism ViewModel for a list page with:
 - INavigationService dependency
 - ObservableCollection for items
 - Rx-based search with throttle
@@ -135,12 +141,12 @@ Follow xamarin-forms-development.md patterns.
 
 **Expected Output:**
 ```csharp
-public class TaskListViewModel : BindableBase, IDestructible
+public class ItemListViewModel : BindableBase, IDestructible
 {
     private readonly INavigationService _navigationService;
     private readonly CompositeDisposable _disposables = new();
 
-    public TaskListViewModel(INavigationService navigationService)
+    public ItemListViewModel(INavigationService navigationService)
     {
         _navigationService = navigationService;
         
@@ -150,8 +156,8 @@ public class TaskListViewModel : BindableBase, IDestructible
             .DisposeWith(_disposables);
     }
 
-    private ObservableCollection<TaskItem> _items;
-    public ObservableCollection<TaskItem> Items
+    private ObservableCollection<Item> _items;
+    public ObservableCollection<Item> Items
     {
         get => _items;
         set => SetProperty(ref _items, value);
